@@ -1,5 +1,7 @@
 package redcode;
 
+import java.util.Arrays;
+
 public class Redcode {
 
 	private String modifier;
@@ -17,23 +19,54 @@ public class Redcode {
 		this.opCode = "";
 	}
 	
-	public Redcode(String m) {
-		// Also an error
-		this.modifier = m;
-		this.operandA = "";
-		this.operandB = "";
+	public Redcode(String opc){
+		this.opCode = opc;
+		this.modifier = getDefaultModifier();
+		this.operandA = "$0";
+		this.operandB = "$0";
+		this.area = null;
 	}
 	
-	public Redcode(String m, String oA) {
-		this.modifier = m;
-		this.operandA = oA;
-		this.operandB = "";
+	public Redcode(String opc, String opa) {
+		this.opCode = opc;
+		this.modifier = getDefaultModifier();
+		this.operandA = opa;
+		this.operandB = "$0";
+		this.area = null;
 	}
 	
-	public Redcode(String m, String oA, String oB) {
-		this.modifier = m;
+	public Redcode(String opc, String oA, String oB) {
+		this.opCode = opc;
+		this.modifier = getDefaultModifier();
 		this.operandA = oA;
 		this.operandB = oB;
+		this.area = null;
+	}
+
+	public Redcode(String opc, String m, String opa, String opb, Integer a){
+		this.opCode = opc;
+		this.modifier = m;
+		this.operandA = opa;
+		this.operandB = opb;
+		this.area = a;
+	}
+
+	public String getDefaultModifier(){
+		String mod = "";
+		if(this.opCode == "dat"){return "f";}
+		else if(this.opCode == "slt"){return ((this.operandA.substring(0, 1) == "#") ? "ab" : "b");}
+		else if(Arrays.asList(new String[]{"jmp", "jmz", "jmn", "djn", "spl", "nop"}).contains(this.opCode)){return "b";}
+		else if(this.operandA.substring(0,1) == "#"){return "ab";}
+		else if(this.operandB.substring(0,1) == "#"){return "b";}
+		else{
+			if(Arrays.asList(new String[]{"add", "sub", "mul", "div", "mod"}).contains(this.opCode)){
+				return "f";
+			}
+			else if(Arrays.asList(new String[]{"mov", "seq", "sne"}).contains(this.opCode)){
+				return "i";
+			}
+		}
+		return mod;
 	}
 	
 	public String getModifier() {

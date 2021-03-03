@@ -6,7 +6,6 @@ public class Test {
         Mars m = new Mars();
         System.out.println(m.toString());    
         
-        System.out.println(s[0]);
     }
 
 }
