@@ -1,50 +1,42 @@
 package player;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.Random;
+
 
 public class Player {
 	
-	private Map<Integer, String[]> playerInput;
+	private ArrayList<WarriorProcess> processes;
 	private String name;
-	private boolean alive;
-	
+
 	public Player() {
-		// On crée une chaîne de nombres entiers que l'on converti en chaîne de caractères si lors de la construction d'un humain l'on ne donne pas de nom
+		// we create a string of integer, then we convert it into a string of character.Used if we dont give the player name in the constuctor
 		byte[] array = new byte[((new Random().nextInt(8))+1)];
 		new Random().nextBytes(array);
 		String generatedString = new String(array, Charset.forName("UTF-8"));
 		this.name = generatedString;
-		this.playerInput = new HashMap<Integer,String[]>();
-		this.alive = true;
+		this.processes = new ArrayList<WarriorProcess>();
 	}
 	
-	public Player(Map<Integer,String[]> p) {
-		// On crée une chaîne de nombres entiers que l'on converti en chaîne de caractères si lors de la construction d'un humain l'on ne donne pas de nom
+	public Player(ArrayList<WarriorProcess> p) {
+		// we create a string of integer, then we convert it into a string of character.Used if we dont give the player name in the constuctor
 		byte[] array = new byte[((new Random().nextInt(8))+1)];
 		new Random().nextBytes(array);
 		String generatedString = new String(array, Charset.forName("UTF-8"));
 		this.name = generatedString;
-		this.playerInput = p;
-		this.alive = true;
+		this.processes = p;
 	}
 	
 	public Player(String n) {
-		// On crée une chaîne de nombres entiers que l'on converti en chaîne de caractères si lors de la construction d'un humain l'on ne donne pas de nom
-		byte[] array = new byte[((new Random().nextInt(8))+1)];
-		new Random().nextBytes(array);
-		String generatedString = new String(array, Charset.forName("UTF-8"));
-		this.name = generatedString;
-		this.playerInput = new HashMap<Integer,String[]>();
-		this.alive = true;
+		n = (n.equals("") ? ((new Player()).getName()) : (n));
+		this.name = n;
+		this.processes = new ArrayList<WarriorProcess>();
 	}
 	
-	public Player(Map<Integer,String[]> p, String n) {
+	public Player(String n, ArrayList<WarriorProcess> p) {
 		this.name = n;
-		this.playerInput = p;
-		this.alive = true;
+		this.processes = p;
 	}
 	
 	public String getName() {
@@ -55,20 +47,35 @@ public class Player {
 		this.name = n;
 	}
 	
-	public Map<Integer,String[]> getPlayerInput() {
-		return this.playerInput;
+	public ArrayList<WarriorProcess> getProcesses() {
+		return this.processes;
 	}
 	
-	public void setPlayerInput(HashMap<Integer, String[]> p) {
-		this.playerInput = p;
+	public void setProcesses(ArrayList<WarriorProcess> p) {
+		this.processes = p;
 	}
-	
+
+	public void addProcess(WarriorProcess wp) {
+		this.processes.add(wp);
+	}
+
 	public boolean isAlive() {
-		return this.alive;
+		//This checks every Process the player has, and it checks if they are alive or not, if one is alive we return True
+		for(WarriorProcess w : this.processes) {
+			if (w.isAlive()){
+				return true;
+			}
+		}
+		return false;
 	}
-	
-	public void dies() {
-		this.alive = false;
+
+	public boolean equals(Object o) {
+		if(o == null || !(o instanceof Player)) {
+			return false;
+		} else {
+			Player presumedPlayer = (Player) o;
+			return presumedPlayer.getName().equals(this.name);
+		}
 	}
-	
+
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="SwagWar" default="compile" basedir=".">
+
+<property name="projet.sources.dir" value="src"/>
+<property name="projet.bin.dir" value="bin"/>
+
+<path id="projet.classpath">
+    <pathelement location="${projet.bin.dir}"/>
+</path>
+
+<target name="init_project">
+    <echo message="${ant.project.name} initialisation"/>
+    <delete dir="${projet.bin.dir}"/>
+    <mkdir dir="${projet.bin.dir}"/>
+</target>
+
+<target name="compile" description="Compiles the project" depends="init_project">
+    <javac srcdir="${projet.sources.dir}" destdir="${projet.bin.dir}" debug="on" optimize="off" deprecation="on" includeantruntime="false">
+        <classpath refid="projet.classpath"/>
+    </javac>
+</target>
+
+<target name="run" description="execution" depends="compile">
+    <java classname="main.Main" fork="true">
+        <assertions>
+            <enable class="Main"/>
+        </assertions>
+        <classpath refid="projet.classpath"/>
+    </java>
+</target>
+
+<target name="javadoc">
+    <javadoc sourcepath="src" destdir="doc">
+    <fileset dir="src" defaultexcludes="yes">
+        <include name="**"/>
+    </fileset>
+    </javadoc>
+</target>
+
+</project>

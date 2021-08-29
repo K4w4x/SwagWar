@@ -1,3 +1,5 @@
 .vscode
 .settings
 .forge_url
+bin
+*.class

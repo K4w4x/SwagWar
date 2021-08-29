@@ -1,0 +1,154 @@
+\documentclass[a4paper,12pt,border=10pt]{article} %style de document
+\usepackage[utf8]{inputenc} %encodage des caractères
+\usepackage[french]{babel} %paquet de langue français
+\usepackage[T1]{fontenc} %encodage de la police
+\usepackage{graphicx} %'affichage des images
+\usepackage[top=2cm,bottom=2cm,left=2cm,right=2cm]{geometry} %marges
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{smartdiagram}
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
+\usepackage{array}
+\usepackage{float}
+\restylefloat{table}
+
+\title{Conception Logicielle L2}
+\author{CAHOREAU Luc, MELET Nathan, ZWARTJES Edouard, FARADJI Romain }
+\date{Avril 2021}
+
+\begin{document}
+    \begin{figure}
+    \includegraphics[width=5cm]{img/Co_Unicaen.png}
+    \label{fig_label}
+\end{figure}
+
+\maketitle
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{Objectifs du projet}
+\subsection{Concept}
+Le concept du Corewar, jeu de programmation introduit en 1984, est de faire s'affronter dans une grille des programmes appelés "Warriors". Ces derniers sont consitués d'un ensemble de commandes écrites dans un langage exclusif au Corewar appelé "Redcode". Les joueurs sont alors invités à créer des programmes performants dans ce jeu. La partie débute en installant les Warriors aléatoirement dans la grille et en les faisant exécuter des instructions au tour par tour, jusqu'à ce qu'il ne reste plus qu'un joueur.
+
+\subsection{Dessein}
+Le défi premier de ce projet fût la compréhension des règles du Corewar, notamment du fonctionnement précis des commandes et de diverses options. Une fois ces règles comprises, il était important de reproduire les comportements des fonctions en question, pour avancer vers une simulation entièrement fonctionnelle. Une fois la simulation faite, il fût nécessaire de permettre au joueur d'entrer ses propres Warriors, soit en passant par un fichier texte, soit en entrant une à une les commandes via le terminal. Il y a eu énormément de phases de test, il était nécessaire de s'assurer que nous étions éloignés de tout comportement hors-norme.
+Un autre défi fût l'utilisation de Git pour ordonner nos travaux, nous avons eu divers problèmes avec au début malheureusement, mais une fois les commandes introduites et retenues, plus aucun souci ne s'est présenté. La dernière difficulté de ce projet fût l'implémentation d'un algorithme génétique, il fût, encore une fois, nécessaire de comprendre le cheminement exact d'un tel algorithme pour pouvoir l'adapter à notre jeu et le rendre fonctionnel. Nous avons, avec ce projet, appris à utiliser de grandes quantités d'objets et de paramètres, la moindre tâche étant demandante en termes de précision, nous avons également avancé nos connaissances sur les objets de type Map tout au long de ce projet.  
+
+\section{Corewar}
+\subsection{Fonctionnement}
+\subsubsection{Redcode}
+Le Redcode a un fonctionnement très précis, il est en effet nécessaire de correctement analyser les commandes et de créer des objets avec. Ainsi, il est nécessaire de bien prendre en compte chaque paramètre, et de les traiter.
+\newline
+\newline
+Voici à quoi ressemble une fonction de Redcode :
+\newline
+\clearpage
+\begin{figure}
+    \begin{center}
+      \smartdiagram[descriptive diagram]{
+      {DAT,{OPCode, defines the behavior of the method}},
+      {.F, {Modifier, defines a specific behavior of the intended OPCode}},
+      {\$, {Addressing mode, define how to get the address}},
+      {0, {Operand, a whole numeric value, defines where to go}},
+      {\$, {Second addressing mode, define how to get the address}},
+      {0, {Second operand, a whole numeric value, defines where to go}}}
+      \caption{Éléments d'une fonction Redcode} 
+    \end{center}
+\end{figure}
+On constate alors quatre éléments principaux :
+\begin{enumerate}
+    \item OPCode
+    \item Modifier
+    \item Addressing mode
+    \item Operand
+\end{enumerate}
+\paragraph{OPCode}
+Un OPCode signifie "Operating Code" (?), il est composé d'exactement trois lettres et il réfère à un type de commande à lancer parmi cette table : 
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|p{10cm}|}
+        \hline
+        OPCode & Description \\ \hline
+        DAT & DAT stand for DATA, if a Warrior executes a DAT command, it dies \\ \hline
+        ADD & ADD stands for ADD, it will add an operand to another one \\\hline
+        SUB & SUB stands for SUBSTRACT, it will substract an operand to another one \\\hline
+        MUL & MUL stands for MULTIPY, it will multiply an operand to another one \\\hline
+        DIV & DIV stands for DIVIDE, it will divide an operand to another one, if we divide by zero, the Warrior dies \\\hline
+        MOD & MOD stands for MODULO, it will modulo an operand to another one\\\hline
+        MOV & MOV stands for MOVE, it will move operands or entire commands to another place\\\hline
+        JMP & JMP stands for JUMP, it will make a Warrior jump to a location\\\hline
+        JMZ & JMP stands for JUMP IF ZERO, same as above, but if something equals zero\\\hline
+        JMN & JMN stands for JUMP IF NOT ZERO, same as above, but if something isn't zero\\\hline
+        DJN & DJN stands for DECREMENT AND JUMP IF NOT ZERO, same as above, but decrements first\\\hline
+        SPL & SPL stands for SPLIT, it will create a new WarriorProcess\\\hline
+        SEQ & SEQ stands for SKIP IF EQUAL, it will make a WarriorProcess skip an instruction if something equals something else\\\hline
+        SNE & SNE stands for SKIP IF NOT EQUAL, same as above, but if something isn't equal to something else\\\hline
+        SLT & SLT stands for SKIP IF LOWER EQUAL, same as above, but if something is lower to something else\\\hline
+        NOP & NOP stands for NO OPERATION, this command does nothing\\\hline
+    \end{tabular}
+    \caption{Les différents OPCodes et leur fonction} \label{2}
+\end{table}
+
+\paragraph{Modifier}
+Un Modifier est composé de deux ou trois caractères, et commence toujours par un point. Le Modifier détermine le comportement des OPCode.
+\newline
+Voici les différents Modifiers du Corewar :
+\begin{table}[H] 
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Modifier & Source & Destination  \\ \hline
+        .A & A operand & A operand \\ \hline
+        .B & B operand & B operand \\\hline
+        .AB & A operand & B operand \\\hline
+        .BA & B operand & A operand \\\hline
+        .F & A and B operand & A and B operand \\\hline
+        .X & A and B operand & B and A operand\\\hline
+        .I & Whole instruction & Whole instruction\\\hline
+    \end{tabular}
+    \caption{Les différents Modifiers} \label{2}
+\end{table}
+
+\paragraph{Addressing mode}
+Un Addressing Mode précède toujours un Operand, il détermine comment récupérer une addresse.
+\newline
+Voici les différents Addressing Modes : 
+\begin{table}[H] 
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        A.M & Effect \\ \hline
+        \# & Immediate   \\ \hline
+        \$ & Direct \\ \hline
+        * & A-field indirect \\\hline
+        @ & B-field indirect \\\hline
+        \{ & A-field indirect with predecrement \\\hline
+        < & B-field indirect with predecrement \\\hline
+        \} & A-field indirect with postincrement\\\hline
+        > & B-field indirect with postincrement\\\hline
+    \end{tabular}
+    \caption{Les différents Addressing Modes} \label{2}
+\end{table}
+\textbf{L'addressing Mode immediat} renvoie un pointeur sur l'objet même, ainsi, on se sert de la valeur stockée comme une valeur et non un pointeur.
+\newline
+\textbf{L'addressing Mode direct} lui traite la valeur comme un pointeur vers une autre commande.
+\newline
+\textbf{L'addressing Mode indirect} lui traite la valeur comme pointeur vers un autre pointeur.
+\newline
+\textbf{Le predecrement} signifie qu'on décrémente le premier pointeur avant de l'utiliser comme un pointeur. \textbf{Le postincrement} lui signifie qu'une fois la commande intégrale éxecutée, l'on incrementera le premier pointeur de l'Addressing Mode.
+
+\paragraph{Operand}
+Un Operand est un entier naturel qui ne peut excéder la taille de la grille de jeu, il est précédé d'un Addressing Mode, il peut être traité par les OPCodes ou les Addressing Mode de différentes manières.
+
+\subsubsection{MARS}
+Le MARS ou "Memory Array Redcode Simulator" est la plateforme de simulation de Corewar. C'est ici que la lecture du Warrior entré par le joueur est faite, puis le parsing de cette dernière, l'initiation et le remplissage de la grille de jeu puis enfin la boucle de jeu contenant la création de la queue de jeu, son éxecution et l'affichage de chaque itération de la queue. 
+
+\subsection{Spécificité de notre version}
+Une spécificité de notre version de Corewar est l'absence du P-Space, qui signifie Personnal Space. C'est un espace appartenant à un joueur ou ce dernier peut stocker des valeurs pour les récupérer ou les comparer à d'autres valeurs. La raison de pourquoi cette fonction n'est pas dans notre version est principalement un manque de temps.
+
+\section{Principaux axes}
+
+\end{document}
